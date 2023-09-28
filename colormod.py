@@ -1,5 +1,4 @@
 import os
-import png
 import json
 import torch
 import numpy as np
