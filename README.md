@@ -1,5 +1,7 @@
 # ComfyUI_ColorMod
 
+![COLMOD](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/7994d00b-69ad-4908-abcf-91adecba02e5)
+
 This repo currently has two sets of nodes - one set for editing the contrast/color of images and another set for saving images as 16 bit PNG files.
 
 I'd recommend using it with `--fp32-vae` to get the full precision output. BF16 definitely doesn't have enough precision, FP16 might work but will NaN randomly on some VAEs.
@@ -24,6 +26,8 @@ The graph below shows the first two decimal digits after converting the image to
 - The FP32 VAE adds a bunch of noise, so the distribution ends up pretty even, though it does lean towards values ending in zero (probably due to being trained on 8bit images).
 - The FP16 VAE seems to be similar to the synthetic one, maybe due to the lack of precision?
 - The BF16 VAE apparently only has 7 bits of precision for the mantissa, so it's a pretty bad format to store the [0-1] VAE output in.
+
+![graph_rem](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/955fc9cc-943d-44a1-93a2-0c1c821f3d63)
 
 *Or I might just be graphing weird float rounding errors. Who knows.*
 
