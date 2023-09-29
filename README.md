@@ -16,6 +16,15 @@ Simply clone the whole repo to your custom node folder: `git clone https://githu
 
 The 16 bit PNG output nodes rely on `pypng`, which can be installed with `pip install pypng`. This isn't a hard requirement, it disables those nodes if it can't find it.
 
+For the standalone comfy install, you can install it with `python_embeded\python.exe -m pip install pypng`.
+
+# Usage
+
+The custom nodes are in images and images/postprocessing respectively. Below is a simple graph that explains what the values do, though I'd like to add a JS widget to show these changes live eventually.
+
+![usage](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/e8355d04-ba8a-4d6f-a7dd-c360c82fa05e)
+
+
 ## Precision
 
 I ran a 8 bit gradient through the UNET at 99% denoise, then decoded it using `ft-mse-840000`. After this, I saved the output as a 16 bit PNG using the node in this pack.
