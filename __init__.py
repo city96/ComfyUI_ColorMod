@@ -20,13 +20,15 @@ else:
 		print("Can't find pypng! Please install to enable 16bit image support.")
 		pass
 	else:
-		from .highprec import SaveImageHighPrec, PreviewImageHighPrec
+		from .highprec import SaveImageHighPrec, PreviewImageHighPrec, LoadImageHighPrec
 		NODE_CLASS_MAPPINGS.update({
 			"SaveImageHighPrec": SaveImageHighPrec,
 			"PreviewImageHighPrec": PreviewImageHighPrec,
+			"LoadImageHighPrec": LoadImageHighPrec,
 		})
 		
 		NODE_DISPLAY_NAME_MAPPINGS.update({
 			"SaveImageHighPrec": SaveImageHighPrec.TITLE,
 			"PreviewImageHighPrec": PreviewImageHighPrec.TITLE,
+			"LoadImageHighPrec": LoadImageHighPrec.TITLE,
 		})
