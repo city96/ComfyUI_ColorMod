@@ -27,6 +27,31 @@ The custom nodes are in images and images/postprocessing respectively. Below is 
 
 ## Precision
 
+## VAE
+
+After I added the node to load images in 16 bit precision, I could test how much gets lost when doing a single VAE encode -> VAE decode pass. The added noise makes it hard to see on a histogram, so I just ran a very agressive edge-detect to highlight any banding.
+
+From top to bottom:
+- `N16` = Native 16 bit gradient, 2048 wide, every column a different color. Not encoded.
+- `FP32` = `N16` as the input image, `--fp32-vae` launch arg
+- `FP16` = `N16` as the input image, `--fp16-vae` launch arg
+- `BF16` = `N16` as the input image, `--bf16-vae` launch arg ([default on 20XX cards and up](https://github.com/comfyanonymous/ComfyUI/commit/b8c7c770d3259543af35acfc45608449b3bc6caa))
+- `N8` = Native 8 bit gradient, 2048 wide with 256 different colors. Not encoded.
+
+### ft-mse-840000.ckpt
+I accidentally cropped the bottom edge off of `FP32`, hence the lack of noise there.
+
+![vae840k](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/f1a0a14b-eb49-4636-b176-a1613f3734ce)
+
+### sdxl_v0.9.safetensors
+Had to use the [FP16 VAE](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix) for the FP16 test.
+
+![vaeXL](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/8ce9e157-681a-4054-ab4b-48468dfde984)
+
+## UNET
+
+(I need to re-test this part to rule out the VAE messing with the results - i.e. run fp32 VAE, pass a 16 bit image into the UNET to begin with, etc, etc.)
+
 I ran a 8 bit gradient through the UNET at 99% denoise, then decoded it using `ft-mse-840000`. After this, I saved the output as a 16 bit PNG using the node in this pack.
 
 The graph below shows the first two decimal digits after converting the image to [0-255]. There is no point in charting INT8 images, since they all end in zero. Here's what I think these results mean:
