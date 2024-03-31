@@ -12,7 +12,6 @@ import folder_paths
 from comfy.cli_args import args
 from nodes import SaveImage, PreviewImage, LoadImage
 
-
 def get_PIL_tEXt(image, prompt, extra_pnginfo):
 	"""This is extremely stupid"""
 	# prepare PIL image as normal
@@ -39,7 +38,6 @@ def get_PIL_tEXt(image, prompt, extra_pnginfo):
 	img=png.Reader(tmp)
 	metadata = [x for x in img.chunks() if x[0] == b"tEXt"]
 	return metadata
-
 
 def save_png(image, extra_chunks, path):
 	i = image.cpu().numpy()
@@ -95,14 +93,21 @@ class PreviewImageHighPrec(SaveImageHighPrec):
 	def __init__(self):
 		self.output_dir = folder_paths.get_temp_directory()
 		self.type = "temp"
-		self.prefix_append = "_temp_" + ''.join(random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5))
+		self.prefix_append = "_temp_" + ''.join(
+			random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5)
+		)
 
 	@classmethod
 	def INPUT_TYPES(s):
-		return {"required":
-					{"images": ("IMAGE", ), },
-				"hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
-				}
+		return {
+			"required": {
+				"images": ("IMAGE",)
+			},
+			"hidden": {
+				"prompt": "PROMPT",
+				"extra_pnginfo": "EXTRA_PNGINFO"
+			}
+		}
 
 class LoadImageHighPrec(LoadImage):
 	TITLE = "Load Image (16 bit)"
@@ -117,11 +122,11 @@ class LoadImageHighPrec(LoadImage):
 		reader = png.Reader(image_path)
 
 		raw = reader.read()
-		image = np.vstack(map(np.uint16, raw[2]))
+		image = np.vstack(list(map(np.uint16, raw[2])))
 
 		dim_rgb = image.shape[1] // raw[0]
 		div_max = 1.0 if np.max(image) <= 255 else 256.0
-		
+
 		image = np.reshape(image,(raw[1], raw[0], dim_rgb))
 		image = np.array(image).astype(np.float32) / (255.0 * div_max )
 		image = torch.from_numpy(np.clip(image, 0.0, 1.0))[None,]
@@ -132,3 +137,9 @@ class LoadImageHighPrec(LoadImage):
 		else:
 			mask = torch.zeros((64,64), dtype=torch.float32, device="cpu").unsqueeze(0)
 		return (image, mask)
+
+NODE_CLASS_MAPPINGS = {
+	"SaveImageHighPrec": SaveImageHighPrec,
+	"PreviewImageHighPrec": PreviewImageHighPrec,
+	"LoadImageHighPrec": LoadImageHighPrec,
+}
