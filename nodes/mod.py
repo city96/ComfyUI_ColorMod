@@ -57,6 +57,7 @@ class ColorModMove:
 			"required": {
 				"image": ("IMAGE",),
 				"move":  ("FLOAT", {"default": 0.0, "min": -1.000, "max": 1.000, "step": 0.01}),
+				"clip": ([True, False], {"default": True}),
 			}
 		}
 
@@ -65,11 +66,11 @@ class ColorModMove:
 	CATEGORY = "ColorMod"
 	TITLE = "ColorMod (move)"
 
-	def mod_move(self, image, move):
+	def mod_move(self, image, move, clip=True):
 		image = image.clone()
 
 		move_map = torch.ones(image.shape) * move
-		out = torch.clip((image + move_map), -4.0, 4.0)
+		out = torch.clip((image + move_map), 0.0, 1.0) if clip else (image + move_map)
 		return (out,)
 
 class ColorModPivot:
@@ -83,6 +84,7 @@ class ColorModPivot:
 				"image": ("IMAGE",),
 				"pivot": ("FLOAT", {"default": 0.5, "min":  0.001, "max": 0.999, "step": 0.01}),
 				"move":  ("FLOAT", {"default": 0.0, "min": -2.000, "max": 2.000, "step": 0.01}),
+				"clip": ([True, False], {"default": True}),
 			}
 		}
 
@@ -91,7 +93,7 @@ class ColorModPivot:
 	CATEGORY = "ColorMod"
 	TITLE = "ColorMod (move pivot)"
 
-	def mod_pivot(self, image, pivot, move):
+	def mod_pivot(self, image, pivot, move, clip=True):
 		image = image.clone()
 
 		pivot_map = torch.ones(image.shape) * pivot
@@ -100,7 +102,7 @@ class ColorModPivot:
 
 		image_high = image_high * (1/(1-pivot)) * (1-(pivot + move))
 		image_low  = image_low * (1/pivot) * (pivot + move)
-		out = torch.clip((image_high + image_low), 0.0, 1.0)
+		out = torch.clip((image_high + image_low), 0.0, 1.0) if clip else (image_high + image_low)
 		return (out,)
 
 class ColorModEdges:
@@ -115,6 +117,7 @@ class ColorModEdges:
 				"low":   ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
 				"pivot": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
 				"high":  ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
+				"clip": ([True, False], {"default": True})
 			}
 		}
 
@@ -123,7 +126,7 @@ class ColorModEdges:
 	CATEGORY = "ColorMod"
 	TITLE = "ColorMod (edges)"
 
-	def mod_edges(self, image, low, pivot, high):
+	def mod_edges(self, image, low, pivot, high, clip=True):
 		image = image.clone()
 
 		pivot_map = torch.ones(image.shape) * pivot
@@ -132,7 +135,7 @@ class ColorModEdges:
 
 		image_low = image_low * low + pivot * (1-low)
 		image_high = image_high * high
-		out = torch.clip((image_high + image_low), 0.0, 1.0)
+		out = torch.clip((image_high + image_low), 0.0, 1.0) if clip else (image_high + image_low)
 		return (out,)
 
 NODE_CLASS_MAPPINGS = {
