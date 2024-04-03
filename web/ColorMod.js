@@ -23,19 +23,43 @@ function addCanvasWidget(node) {
 	return widget;
 }
 
-function drawCanvasInitial(ctx, width, height, pv_x, pv_y) {
+function drawCanvasInitial(ctx, width, height, pv_x=null, pv_y=null) {
 	// clear
 	ctx.clearRect(0, 0, width, height)
+	if (pv_x && pv_y) {
+		// set style
+		ctx.beginPath()
+		ctx.lineWidth = 5
+		ctx.strokeStyle = "#444"
+		// draw cross
+		ctx.moveTo(0, pv_y)
+		ctx.lineTo(width, pv_y)
+		ctx.moveTo(pv_x, 0)
+		ctx.lineTo(pv_x, height)
+		ctx.stroke()
+	}
+}
 
-	// draw cross
+function drawCanvasCMMove(node) {
+	let move = getNamedWidget(node, "move").value
+	let canvas = getNamedWidget(node, "canvas").canvas
+
+	let ctx = canvas.getContext("2d")
+	
+	// Calc coords
+	let width = canvas.width
+	let height = canvas.height
+	let offset = height * -move
+
+	// clear
+	drawCanvasInitial(ctx, width, height)
+	// set style
 	ctx.beginPath()
-	ctx.lineWidth = 5
-	ctx.strokeStyle = "#444"
-
-	ctx.moveTo(0, pv_y)
-	ctx.lineTo(width, pv_y)
-	ctx.moveTo(pv_x, 0)
-	ctx.lineTo(pv_x, height)
+	ctx.lineWidth = 15
+	ctx.strokeStyle = canvas.stcolor
+	// draw lines
+	ctx.moveTo(0, height + offset)  // start
+	ctx.lineTo(width, offset)   // start -> end
 	ctx.stroke()
 }
 
@@ -54,12 +78,11 @@ function drawCanvasCMMovePivot(node) {
 
 	// clear
 	drawCanvasInitial(ctx, width, height, pv_x, pv_y)
-
-	// draw lines
+	// set style
 	ctx.beginPath()
 	ctx.lineWidth = 15
 	ctx.strokeStyle = canvas.stcolor
-
+	// draw lines
 	ctx.moveTo(0, height)  // start
 	ctx.lineTo(pv_x, pv_y) // start -> pivot
 	ctx.lineTo(width, 0)   // pivot -> end
@@ -84,12 +107,11 @@ function drawCanvasCMEdges(node) {
 
 	// clear
 	drawCanvasInitial(ctx, width, height, pv_x, pv_y)
-
-	// draw lines
+	// set style
 	ctx.beginPath()
 	ctx.lineWidth = 15
 	ctx.strokeStyle = canvas.stcolor
-
+	// draw lines
 	ctx.moveTo(0, height * low)            // start
 	ctx.lineTo(pv_x, pv_y)                 // start -> pivot
 	ctx.lineTo(width, height * (1.0-high)) // pivot -> end
@@ -99,6 +121,12 @@ function drawCanvasCMEdges(node) {
 app.registerExtension({
 	name: "City96.ColorMod",
 	nodeCreated(node, app) {
+		if (node.__proto__.comfyClass == "ColorModMove") {
+			var widget = addCanvasWidget(node)
+			var refresh = function(v=null) { drawCanvasCMMove(node) }
+			getNamedWidget(node, "move").callback = refresh
+			setTimeout(refresh, 100);
+		}
 		if (node.__proto__.comfyClass == "ColorModPivot") {
 			var widget = addCanvasWidget(node)
 			var refresh = function(v=null) { drawCanvasCMMovePivot(node) }
@@ -113,6 +141,9 @@ app.registerExtension({
 			getNamedWidget(node, "high").callback = refresh
 			getNamedWidget(node, "pivot").callback = refresh
 			setTimeout(refresh, 100);
+		}
+		if (node.__proto__.comfyClass == "ColorModExposureFusion") {
+			console.log(node)
 		}
 	}
 })

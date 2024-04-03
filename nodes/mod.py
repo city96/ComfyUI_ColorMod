@@ -9,41 +9,67 @@ class ColorModCompress:
 		return {
 			"required": {
 				"image": ("IMAGE",),
+				"mode": (["clip", "normalize", "compress"],)
 			}
 		}
 
 	RETURN_TYPES = ("IMAGE",)
 	FUNCTION = "mod_compress"
-	CATEGORY = "image/postprocessing"
-	TITLE = "ColorMod (compress to [0;1])"
+	CATEGORY = "ColorMod"
+	TITLE = "ColorMod (compress)"
 
-	def check_range(self, image):
-		image_min = torch.min(image)
-		image_max = torch.max(image)
-		if image_min < 0.0:
-			print("low trs hit")
-			image = image + image_min
-
-		if image_max > 1.0:
-			print("high trs hit")
-			image = image * (1 / image_max)
-
-		new_max = torch.max(image)
-		if new_max > 1.0:
-			print("high due to low trs hit")
-			image = image * (1 / new_max)
-
-		print("MCX",image_min,image_max,new_max)
-
-	def mod_compress(self, image):
-		ll = torch.minimum(image, torch.zeros(image.shape))
-		ll = torch.clip(torch.abs(ll) * 8, 0.0, 1.0)
-		hh = torch.maximum(image, torch.ones(image.shape))
-		hh = torch.clip((torch.abs(hh)-1.0) * 8, 0.0, 1.0)
-		image = ll + hh
+	def mod_compress(self, image, mode):
+		image = image.clone()
+		if mode == "clip":
+			out = torch.clip(image, 0.0, 1.0)
+		elif mode == "normalize":
+			out = []
+			for img in image:
+				img_min = torch.min(image)
+				img_max = torch.max(image)
+				print(f"Normalizing [{img_min:6.4f}:{img_max:6.4f}] => [0.0;1.0]")
+				img = (img - img_min) / (img_max - img_min)
+				out.append(img)
+			out = torch.stack(out, dim=0)
+		elif mode == "compress":
+			out = []
+			for img in image:
+				ll = torch.minimum(image, torch.zeros(image.shape))
+				ll = torch.clip(torch.abs(ll), 0.0, 1.0)
+				hh = torch.maximum(image, torch.ones(image.shape))
+				hh = torch.clip((torch.abs(hh)-1.0), 0.0, 1.0)
+				out.append(ll + hh)
+			out = torch.stack(out, dim=0)
+		else:
+			raise ValueError(f"Unknown mode '{mode}'")
 
 		# self.check_range(image) # debug
-		out = torch.clip(image, 0.0, 1.0) # sanity
+		out = torch.clip(out, 0.0, 1.0) # sanity
+		return (out,)
+
+class ColorModMove:
+	def __init__(self):
+		pass
+
+	@classmethod
+	def INPUT_TYPES(s):
+		return {
+			"required": {
+				"image": ("IMAGE",),
+				"move":  ("FLOAT", {"default": 0.0, "min": -1.000, "max": 1.000, "step": 0.01}),
+			}
+		}
+
+	RETURN_TYPES = ("IMAGE",)
+	FUNCTION = "mod_move"
+	CATEGORY = "ColorMod"
+	TITLE = "ColorMod (move)"
+
+	def mod_move(self, image, move):
+		image = image.clone()
+
+		move_map = torch.ones(image.shape) * move
+		out = torch.clip((image + move_map), -4.0, 4.0)
 		return (out,)
 
 class ColorModPivot:
@@ -62,10 +88,12 @@ class ColorModPivot:
 
 	RETURN_TYPES = ("IMAGE",)
 	FUNCTION = "mod_pivot"
-	CATEGORY = "image/postprocessing"
+	CATEGORY = "ColorMod"
 	TITLE = "ColorMod (move pivot)"
 
 	def mod_pivot(self, image, pivot, move):
+		image = image.clone()
+
 		pivot_map = torch.ones(image.shape) * pivot
 		image_high = torch.maximum(image, pivot_map) - pivot
 		image_low = torch.minimum(image, pivot_map)
@@ -85,17 +113,19 @@ class ColorModEdges:
 			"required": {
 				"image": ("IMAGE",),
 				"low":   ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
-				"high":  ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
 				"pivot": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
+				"high":  ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.01}),
 			}
 		}
 
 	RETURN_TYPES = ("IMAGE",)
 	FUNCTION = "mod_edges"
-	CATEGORY = "image/postprocessing"
+	CATEGORY = "ColorMod"
 	TITLE = "ColorMod (edges)"
 
 	def mod_edges(self, image, low, pivot, high):
+		image = image.clone()
+
 		pivot_map = torch.ones(image.shape) * pivot
 		image_high = torch.maximum(image, pivot_map) - pivot
 		image_low = torch.minimum(image, pivot_map)
@@ -107,6 +137,7 @@ class ColorModEdges:
 
 NODE_CLASS_MAPPINGS = {
 	"ColorModCompress": ColorModCompress,
+	"ColorModMove" : ColorModMove,
 	"ColorModPivot": ColorModPivot,
 	"ColorModEdges": ColorModEdges,
 }

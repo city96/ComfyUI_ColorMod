@@ -34,7 +34,7 @@ def get_PIL_tEXt(image, prompt, extra_pnginfo):
 	img.save(tmp, "png", pnginfo=metadata, compress_level=0)
 	tmp.seek(0)
 
-	# read it back and PNG and get the tEXt chunks
+	# read it back as PNG and get the tEXt chunks
 	img=png.Reader(tmp)
 	metadata = [x for x in img.chunks() if x[0] == b"tEXt"]
 	return metadata
@@ -67,6 +67,8 @@ def save_png(image, extra_chunks, path):
 
 class SaveImageHighPrec(SaveImage):
 	TITLE = "Save Image (16 bit)"
+	CATEGORY = "ColorMod"
+
 	def save_images(self, images, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
 		filename_prefix += self.prefix_append
 		full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0])
@@ -90,6 +92,8 @@ class SaveImageHighPrec(SaveImage):
 # Directly copied from nodes.py
 class PreviewImageHighPrec(SaveImageHighPrec):
 	TITLE = "Preview Image (16 bit)"
+	CATEGORY = "ColorMod"
+
 	def __init__(self):
 		self.output_dir = folder_paths.get_temp_directory()
 		self.type = "temp"
@@ -112,6 +116,7 @@ class PreviewImageHighPrec(SaveImageHighPrec):
 class LoadImageHighPrec(LoadImage):
 	TITLE = "Load Image (16 bit)"
 	FUNCTION = "load_image_high_precision"
+	CATEGORY = "ColorMod"
 
 	def load_image_high_precision(self, image):
 		if not image.endswith(".png"):
