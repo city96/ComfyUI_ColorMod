@@ -34,6 +34,10 @@ else:
 		# HDR save/load nodes
 		from .nodes.save_hdr import NODE_CLASS_MAPPINGS as save_hdr_nodes
 		NODE_CLASS_MAPPINGS.update(save_hdr_nodes)
+		
+		# HDR tonemap nodes
+		from .nodes.tonemap import NODE_CLASS_MAPPINGS as tonemap_nodes
+		NODE_CLASS_MAPPINGS.update(tonemap_nodes)
 
 	# export
 	NODE_DISPLAY_NAME_MAPPINGS = {k:v.TITLE for k,v in NODE_CLASS_MAPPINGS.items()}
