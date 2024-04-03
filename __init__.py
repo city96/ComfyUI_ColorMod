@@ -21,6 +21,19 @@ else:
 		from .nodes.save_png import NODE_CLASS_MAPPINGS as save_png_nodes
 		NODE_CLASS_MAPPINGS.update(save_png_nodes)
 
+	# cv2 dep
+	try:
+		import cv2
+	except ImportError:
+		print("ColorMod: Can't find opencv! Please install to enable HDR/tonemapping support.")
+	else:
+		# HDR creation/etc nodes
+		from .nodes.hdr import NODE_CLASS_MAPPINGS as hdr_nodes
+		NODE_CLASS_MAPPINGS.update(hdr_nodes)
+		
+		# HDR save/load nodes
+		from .nodes.save_hdr import NODE_CLASS_MAPPINGS as save_hdr_nodes
+		NODE_CLASS_MAPPINGS.update(save_hdr_nodes)
 
 	# export
 	NODE_DISPLAY_NAME_MAPPINGS = {k:v.TITLE for k,v in NODE_CLASS_MAPPINGS.items()}
