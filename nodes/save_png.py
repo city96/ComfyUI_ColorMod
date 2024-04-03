@@ -67,7 +67,7 @@ def save_png(image, extra_chunks, path):
 
 class SaveImageHighPrec(SaveImage):
 	TITLE = "Save Image (16 bit)"
-	CATEGORY = "ColorMod"
+	CATEGORY = "ColorMod/16bit"
 
 	def save_images(self, images, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
 		filename_prefix += self.prefix_append
@@ -92,7 +92,7 @@ class SaveImageHighPrec(SaveImage):
 # Directly copied from nodes.py
 class PreviewImageHighPrec(SaveImageHighPrec):
 	TITLE = "Preview Image (16 bit)"
-	CATEGORY = "ColorMod"
+	CATEGORY = "ColorMod/16bit"
 
 	def __init__(self):
 		self.output_dir = folder_paths.get_temp_directory()
@@ -116,7 +116,7 @@ class PreviewImageHighPrec(SaveImageHighPrec):
 class LoadImageHighPrec(LoadImage):
 	TITLE = "Load Image (16 bit)"
 	FUNCTION = "load_image_high_precision"
-	CATEGORY = "ColorMod"
+	CATEGORY = "ColorMod/16bit"
 
 	def load_image_high_precision(self, image):
 		if not image.endswith(".png"):
