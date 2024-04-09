@@ -1,31 +1,49 @@
-# ComfyUI_ColorMod
+![ColorModExample](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/3be66a59-46df-46a6-bbcf-ac05142442ec)
 
-![COLMOD](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/7994d00b-69ad-4908-abcf-91adecba02e5)
-
-This repo currently has two sets of nodes - one set for editing the contrast/color of images and another set for saving images as 16 bit PNG files.
-
-I'd recommend using it with `--fp32-vae` to get the full precision output. BF16 definitely doesn't have enough precision, FP16 might work but will NaN randomly on some VAEs.
-
-I'm not sure it makes sense to do it like this from an implementational standpoint, but (as far as I can tell) the IMAGE inputs/outputs in ComfyUI are `torch.float32`s between 0 and 1, meaning they have a lot of precision compared to 8bit images.
-
-The idea was to make use of this so changing the brightness / contrast / etc would happen in this high-precision space, which would hopefully lessen banding and artifacts due to rounding errors/working with `UINT8`.
+This repo contains nodes around image color manipulation, as well as HDR and tonemapping operations.
 
 ## Installation
 
-Simply clone the whole repo to your custom node folder: `git clone https://github.com/city96/ComfyUI_ColorMod ComfyUI/custom_nodes/ComfyUI_ColorMod`
+As with most node packs, you can install it by git cloning it to your custom nodes folder or by installing it through the manager.
+```
+git clone https://github.com/city96/ComfyUI_ColorMod ./ComfyUI/custom_nodes/ComfyUI_ColorMod
+```
 
-The 16 bit PNG output nodes rely on `pypng`, which can be installed with `pip install pypng`. This isn't a hard requirement, it disables those nodes if it can't find it.
+> [!IMPORTANT]  
+> Installing the requirements isn't strictly required, but most of the core nodes will be missing without them.
 
-For the standalone comfy install, you can install it with `python_embeded\python.exe -m pip install pypng`.
+For regular installs, this can be done using the usual `pip install -r requirements.txt` in the node folder with the correct env/venv active.
+
+For standalone ComfyUI installs on windows, open a command line in the same location your `run_nvidia_gpu.bat` file is located and run the following:
+```
+.\python_embeded\python.exe -s -m pip install -r .\ComfyUI\custom_nodes\ComfyUI_ExtraModels\requirements.txt
+```
 
 # Usage
 
-The custom nodes are in images and images/postprocessing respectively. Below is a simple graph that explains what the values do, though I'd like to add a JS widget to show these changes live eventually.
+The ColorMod nodes all change the image color values in some way. In the most recent version, they all come with a small visualization tool to show how the values will affect the image.
 
-![usage](https://github.com/city96/ComfyUI_ColorMod/assets/125218114/e8355d04-ba8a-4d6f-a7dd-c360c82fa05e)
+The graph, without any changes, is a straight line from the bottom left to the top right corner. The horizontal axis represents the input values while the vertical axist represents the remapped ones. As an example, moving the left side up will result in darker areas being brighter.
 
+Clipping should be enabled (unless HDR images are being manipulated), as passing values outside the expected range to the VAE/UNET can cause some odd behavior. 
+
+
+For the HDR workflow in the image above, you can use this [Sample workflow](https://github.com/city96/ComfyUI_ColorMod/files/14913017/ColorModNarrowWF.json).
+
+Most of the HDR nodes require a bit of trial-and-error, especially the one for creating HDR images. Realistically, there is no "exposure" with generated images so these values will have to be guessed.
+
+Another issue can be that different diffusion passes at different brightness levels can end up diverging, resulting in artifacts when recombining them. Controlnet and similar techniques to keep the inputs and outputs similar are recommended.
+
+The tonemapping nodes also require some testing to get right, and **behave slightly differently for HDR/SDR** images. The "multiplier" value is largely non-standard, and is an idea adapted from [this great article](https://learnopencv.com/high-dynamic-range-hdr-imaging-using-opencv-cpp-python/) by Satya Mallick, which I referenced while figuring out the proper implementation. For HDR tonemapping, setting a multiplier of 2-3 might result in better image quality.
+
+Using HDR images directly without tonemapping is probably useless, and has a chance to cause errors since the values are no longer in the expected `[0.0,1.0]` range.
 
 ## Precision
+
+(needs retesting on newer versions)
+
+<details>
+<summary>Click to expand.</summary>
 
 ## VAE
 
@@ -65,3 +83,4 @@ The graph below shows the first two decimal digits after converting the image to
 
 *Or I might just be graphing weird float rounding errors. Who knows.*
 
+</details>
