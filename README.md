@@ -16,7 +16,7 @@ For regular installs, this can be done using the usual `pip install -r requireme
 
 For standalone ComfyUI installs on windows, open a command line in the same location your `run_nvidia_gpu.bat` file is located and run the following:
 ```
-.\python_embeded\python.exe -s -m pip install -r .\ComfyUI\custom_nodes\ComfyUI_ExtraModels\requirements.txt
+.\python_embeded\python.exe -s -m pip install -r .\ComfyUI\custom_nodes\ComfyUI_ColorMod\requirements.txt
 ```
 
 # Usage
