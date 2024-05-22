@@ -1,0 +1,15 @@
+[project]
+name = "comfyui_colormod"
+description = "This extension currently has two sets of nodes - one set for editing the contrast/color of images and another set for saving images as 16 bit PNG files."
+version = "1.0.0"
+license = "LICENSE"
+dependencies = ["pypng", "opencv-contrib-python"]
+
+[project.urls]
+Repository = "https://github.com/city96/ComfyUI_ColorMod"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI_ColorMod"
+Icon = ""
