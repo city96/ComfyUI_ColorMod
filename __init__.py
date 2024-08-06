@@ -39,6 +39,10 @@ else:
 		from .nodes.tonemap import NODE_CLASS_MAPPINGS as tonemap_nodes
 		NODE_CLASS_MAPPINGS.update(tonemap_nodes)
 
+		# color space nodes
+		from .nodes.colorspace import NODE_CLASS_MAPPINGS as colorspace_nodes
+		NODE_CLASS_MAPPINGS.update(colorspace_nodes)
+
 	# export
 	NODE_DISPLAY_NAME_MAPPINGS = {k:v.TITLE for k,v in NODE_CLASS_MAPPINGS.items()}
 	__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

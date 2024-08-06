@@ -126,5 +126,5 @@ NODE_CLASS_MAPPINGS = {
 # not all cv2 versions support all tonemap nodes (e.g Durand require nonfree)
 for name in list(NODE_CLASS_MAPPINGS.keys()):
 	if NODE_CLASS_MAPPINGS[name].tonemap_op is None:
-		print(f"Ignoring node '{name}' due to cv2 edition/version")
+		print(f"ColorMod: Ignoring node '{name}' due to cv2 edition/version")
 		del NODE_CLASS_MAPPINGS[name]

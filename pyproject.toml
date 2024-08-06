@@ -1,0 +1,14 @@
+[project]
+name = "comfyui_colormod"
+description = "Nodes for contrast/color editing as well as 16bit/HDR/tonemapping support."
+version = "1.2.0"
+license = { file = "LICENSE" }
+dependencies = ["pypng", "opencv-contrib-python"]
+
+[project.urls]
+Repository = "https://github.com/city96/ComfyUI_ColorMod"
+
+[tool.comfy]
+PublisherId = "city96"
+DisplayName = "ComfyUI ColorMod"
+Icon = ""
